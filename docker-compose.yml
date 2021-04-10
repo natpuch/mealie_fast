@@ -2,7 +2,7 @@ version: "3.4"
 services:
   mealie_fast:
     container_name: mealie_fast
-    image: mealie_fast
+    image: zpex/bash_on_steroids
     environment:
       - TZ=Europe/Paris
       - PASS_mealie_api=http://192.168.0.2:9000
