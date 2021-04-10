@@ -1,0 +1,19 @@
+version: "3.4"
+services:
+  mealie_fast:
+    container_name: mealie_fast
+    image: mealie_fast
+    environment:
+      - TZ=Europe/Paris
+      - PASS_mealie_api=http://192.168.0.2:9000
+      - PASS_mealie_local=http://192.168.0.2:9000
+      - PASS_mealie_public=https://mealie.example.com
+    ports:
+      - 45895:80
+    volumes:
+        - ./html/:/var/www/html/
+
+networks:
+  default:
+    external:
+      name: swagnet
