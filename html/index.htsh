@@ -4,35 +4,26 @@
 <meta charset="utf-8">
 <title>Mealie but faster</title>
 <style>
-.bs-example{
-margin: 20px;
- }
-/* First the Grid */
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  grid-gap: 1.5rem;
-  justify-items: center;
-  margin: 0;
-  padding: 0;
+div.gallery {
+  margin: 5px;
+  border: 1px solid #ccc;
+  float: left;
+  width: 200px;
 }
-/* The Picture Frame */
-.gallery-frame {
-  padding: .5rem;
-  font-size: 1.2rem;
-  text-align: center;
-  background-color: #e1e1e1;
-  color: #d9d9d9;
+
+div.gallery:hover {
+  border: 1px solid #777;
 }
-/* The Images */
-.gallery-img {
-  max-width: 100%;
+
+div.gallery img {
+  width: 100%;
   height: auto;
-  object-fit: cover;
-  transition: opacity 0.25s ease-in-out;
 }
-.gallery-img:hover {
-  opacity: .7;
+
+div.desc {
+  padding: 15px;
+  text-align: center;
+  height: 60px;
 }
 </style>
 </head>
@@ -40,7 +31,7 @@ margin: 20px;
 <h1>My Recipes</h1>
 <?bash
 
-
+echo '<div>'
 echo aa $HTTP_HOST bb
 address=$(echo $HTTP_HOST | sed -e 's/:[0-9]*//')
 if [[ $address =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -50,6 +41,7 @@ else
   echo "external"
   mealie_url=$mealie_public
 fi
+echo '</div>'
 
 cd /var/www/html
 req=$(curl $mealie_api'/api/recipes?keys=slug&num=9999' \
@@ -59,19 +51,21 @@ imgs=$(echo $req | \
     sed -e 's/.*,\([a-z0-9\.\-]*\)/\1\\n/g' |
     sed -e 's/\}\]//g' |
 	sed -e 's/"//g')
-echo '<div class="gallery-grid">'
+	
 for img in $imgs; do
     if [ ! -f "img/$img" ]; then
 		curl $mealie_api'/api/recipes/'"$img"'/image?image_type=small' > img/$img
 	fi
-	echo '<figure class="gallery-frame">'
-	echo '<img class="galery-frame" src="img/'$img'" alt="$img" title="$img" width="200px">'
 	st=$(echo $img | sed -e 's/\(.*\)\.[^.]*/\1/g')
 	title=$(echo $st | sed -e 's/\-/ /g')
-	echo '<figcaption><a href="'$mealie_url/recipe/$st'">'$title'</a></figcaption>'
-	echo '</figure>'
+	
+	echo '<div class="gallery">'
+    echo '<a target="_blank" href="'$mealie_url/recipe/$st'">'
+    echo '<img src="img/'$img'" alt="$img" width="200px" height="200px">'
+    echo '</a>'
+    echo '<div class="desc">'$title'</div>'
+    echo '</div>'
 done
-echo '</div>'
 ?>
 </body>
 </html>
