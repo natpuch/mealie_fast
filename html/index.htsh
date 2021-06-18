@@ -49,7 +49,7 @@ echo '</div>'
 
 cd /var/www/html
 
-#curl $mealie_api'/api/recipes/summary' -H 'Accept: application/json, text/plain, */*' > resp
+curl $mealie_api'/api/recipes/summary' -H 'Accept: application/json, text/plain, */*' > resp
 
 chmod +x jq
 
