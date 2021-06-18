@@ -44,29 +44,30 @@ else
   echo "external"
   mealie_url=$mealie_public
 fi
+echo $mealie_api
 echo '</div>'
 
 cd /var/www/html
-req=$(curl $mealie_api'/api/recipes?keys=slug&num=9999' \
-    -H 'Accept: application/json, text/plain, */*')
-imgs=$(echo $req | \
-	sed -e 's/"slug":"\([a-z0-9\.\-]*\)/\1\\n/g' |
-    sed -e 's/.*,\([a-z0-9\.\-]*\)/\1\\n/g' |
-    sed -e 's/\}\]//g' |
-	sed -e 's/"//g')
-	
-for img in $imgs; do
-    if [ ! -f "img/$img" ]; then
-		curl $mealie_api'/api/recipes/'"$img"'/image?image_type=small' > img/$img
-	fi
-	st=$(echo $img | sed -e 's/\(.*\)\.[^.]*/\1/g')
-	title=$(echo $st | sed -e 's/\-/ /g')
-	
+
+#curl $mealie_api'/api/recipes/summary' -H 'Accept: application/json, text/plain, */*' > resp
+
+chmod +x jq
+
+cat resp | ./jq -r '.[] | .slug' | sort > slugsjq
+
+slugs=$(cat slugsjq)
+
+for slug in $slugs; do
+
+	if [ ! -f "img/$slug" ]; then
+		curl $mealie_api'/api/media/recipes/'$slug'/images/min-original.webp?&rnd=null&version=no%20image' > "img/$slug"
+ 	fi
+ 			
 	echo '<div class="gallery">'
-    echo '<a target="_blank" href="'$mealie_url/recipe/$st'">'
-    echo '<img src="img/'$img'" alt="$img">'
+    echo '<a target="_blank" href="'$mealie_url/recipe/$slug'">'
+    echo '<img src="img/'$slug'" alt="$slug">'
     echo '</a>'
-    echo '<div class="desc">'$title'</div>'
+    echo '<div class="desc">'$slug'</div>'
     echo '</div>'
 done
 ?>
